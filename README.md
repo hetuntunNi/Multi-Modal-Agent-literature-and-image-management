@@ -1,5 +1,5 @@
 # 本地 AI 智能文献与图像管理助手
-tps://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/downloads/release/python-390/)
+https://github.com/hetuntunNi/Multi-Modal-Agent-literature-and-image-management.git
 
 ## 项目简介
 本项目是基于Python 3.10开发的本地多模态AI智能助手，解决本地文献（PDF）和图像的管理难题。通过**语义搜索**和**自动分类**技术，替代传统的文件名搜索，支持：
