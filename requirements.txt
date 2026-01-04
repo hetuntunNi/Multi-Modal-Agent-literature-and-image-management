@@ -1,0 +1,20 @@
+# 基础依赖
+python-dotenv==1.0.0
+numpy==1.26.4
+pillow==10.2.0
+PyPDF2==3.0.1
+pdfplumber==0.10.3
+
+# 嵌入模型
+sentence-transformers==2.7.0
+torch==2.0.1
+transformers==4.38.2
+git+https://github.com/openai/CLIP.git
+ftfy==6.1.1
+regex==2023.12.25
+
+# 向量数据库
+chromadb==0.4.24
+
+# Windows/Linux 兼容依赖
+typing-extensions==4.8.0
