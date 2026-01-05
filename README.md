@@ -35,32 +35,32 @@ pip install -r requirements.txt
 # 示例：将论文分类到CV、NLP、RL主题
 python main.py add_paper "docs/GeoRAG A Question-Answering Approach from a Geographical Perspective.pdf" --topics "CV,NLP,RL"
 ```
-![](F:\bjtu\multimodels\1.png)
+![](src\web\static\1.png)
 ```bash
 # 示例：整理papers文件夹下的所有PDF
 python main.py add_paper "docs" --topics "CV,NLP,RL"
 ```
-![](F:\bjtu\multimodels\2.png)
+![](src\web\static\2.png)
 ```bash
 # 示例：搜索相关论文（返回5条结果）
 python main.py search_paper "GeoAI的发展" --n_results 3
 ```
-![](F:\bjtu\multimodels\6.png)
+![](src\web\static\6.png)
 ```bash
 # 示例：搜索“海边的日落”相关图像
 python main.py search_image "海边的日落" --n_results 3
 ```
-![](F:\bjtu\multimodels\7.png)
+![](src\web\static\7.png)
 
 ## 系统运行
 ```bash
 python app.py
 ```
 ### 分类论文
-![](F:\bjtu\multimodels\4.png)
-![](F:\bjtu\multimodels\5.png)
+![](src\web\static\4.png)
+![](src\web\static\5.png)
 ### 搜索论文
-![](F:\bjtu\multimodels\8.png)
+![](src\web\static\8.png)
 ### 搜索图片
-![](F:\bjtu\multimodels\9.png)
+![](src\web\static\9.png)
 
