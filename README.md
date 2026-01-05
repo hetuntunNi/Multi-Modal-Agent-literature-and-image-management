@@ -71,6 +71,9 @@ python main.py add_paper "docs/GeoRAG A Question-Answering Approach from a Geogr
 python main.py add_paper "docs" --topics "CV,NLP,RL"
 ```
 ![](src/web/static/2.png)
+分类后的目录结构：
+
+![](src/web/static/10.png)
 ```bash
 # 示例：搜索相关论文（返回3条结果）
 python main.py search_paper "GeoAI的发展" --n_results 3
