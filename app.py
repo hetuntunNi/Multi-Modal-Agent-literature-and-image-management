@@ -3,14 +3,8 @@ import os
 import tempfile
 from werkzeug.utils import secure_filename
 import PyPDF2
-
-# 导入您的模块
-try:
-    from src.document_manager import DocumentManager
-    from src.image_manager import ImageManager
-except ImportError as e:
-    print(f"导入模块错误: {e}")
-    print("请确保在正确的目录下运行应用")
+from src.document_manager import DocumentManager
+from src.image_manager import ImageManager
 
 # 获取当前文件所在目录的绝对路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -252,7 +246,7 @@ def api_batch_add_papers():
 
             try:
                 filename = secure_filename(file.filename)
-                temp_path = os.path.join(app.config['UPLOAD_FOLDER'], f"batch_{processed_count}_{filename}")
+                temp_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{filename}")
                 file.save(temp_path)
 
                 # 检查文件大小

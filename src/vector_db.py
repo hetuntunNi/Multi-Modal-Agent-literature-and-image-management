@@ -3,7 +3,7 @@ from chromadb.config import Settings
 
 class VectorDB:
     def __init__(self, db_path: str = "./data/chroma_db"):
-        # 初始化ChromaDB（持久化存储，Python 3.9 兼容）
+        # 初始化ChromaDB（持久化存储）
         self.client = chromadb.PersistentClient(
             path=db_path,
             settings=Settings(allow_reset=True, anonymized_telemetry=False)  # 关闭匿名统计

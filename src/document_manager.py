@@ -128,7 +128,7 @@ class DocumentManager:
                     "path": dest_path,
                     "topic": topic,
                     "file_name": dest_file_name,
-                    "page": page_num  # 新增：存储页码
+                    "page": page_num  # 存储页码
                 })
                 all_documents.append(chunk)  # 存储完整片段（而非前500字符）
 
