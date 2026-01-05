@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态AI智能文献与图像管理助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: 600; }
+        .tab-pane { padding: 20px 0; }
+        .result-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+        }
+        .similarity-badge { font-size: 0.9em; }
+        .file-input { margin: 10px 0; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .alert { margin: 10px 0; }
+        .page-badge { background: #6c757d; }
+        .topic-badge { background: #0d6efd; }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot me-2"></i>AI文献与图像管理助手
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 标签页导航 -->
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="add-paper-tab" data-bs-toggle="tab"
+                       data-bs-target="#add-paper" type="button" role="tab">添加论文</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="search-paper-tab" data-bs-toggle="tab"
+                       data-bs-target="#search-paper" type="button" role="tab">搜索论文</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="search-image-tab" data-bs-toggle="tab"
+                       data-bs-target="#search-image" type="button" role="tab">以文搜图</button>
+            </li>
+        </ul>
+
+        <!-- 标签页内容 -->
+        <div class="tab-content" id="mainTabsContent">
+
+            <!-- 添加论文标签页 -->
+            <div class="tab-pane fade show active" id="add-paper" role="tabpanel">
+                <h4><i class="fas fa-file-pdf text-danger me-2"></i>添加并分类论文</h4>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">单文件上传</div>
+                            <div class="card-body">
+                                <form id="singleUploadForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">选择PDF文件</label>
+                                        <input class="form-control" type="file" id="singleFile" accept=".pdf" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">分类主题（逗号分隔）</label>
+                                        <input type="text" class="form-control" id="singleTopics"
+                                               placeholder="例如: CV,NLP,RL,医学,物理" required>
+                                        <div class="form-text">用英文逗号分隔多个主题</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-2"></i>上传并分类
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">批量上传</div>
+                            <div class="card-body">
+                                <form id="batchUploadForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">选择多个PDF文件</label>
+                                        <input class="form-control" type="file" id="batchFiles"
+                                               accept=".pdf" multiple required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">分类主题（逗号分隔）</label>
+                                        <input type="text" class="form-control" id="batchTopics"
+                                               placeholder="例如: CV,NLP,RL,医学,物理" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-folder-open me-2"></i>批量上传
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="uploadResults" class="mt-3"></div>
+            </div>
+
+            <!-- 搜索论文标签页 -->
+            <div class="tab-pane fade" id="search-paper" role="tabpanel">
+                <h4><i class="fas fa-search text-primary me-2"></i>语义搜索论文</h4>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="searchPaperForm">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="paperQuery"
+                                       placeholder="输入自然语言查询，如：'关于深度学习的图像识别方法'" required>
+                                <select class="form-select" id="paperResultsCount" style="max-width: 120px;">
+                                    <option value="1">1条结果</option>
+                                    <option value="3">3条结果</option>
+                                    <option value="5">5条结果</option>
+                                </select>
+                                <button class="btn btn-primary" type="submit">搜索</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="paperSearchResults"></div>
+                <div class="loading" id="paperLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">搜索中...</span>
+                    </div>
+                    <p class="mt-2">正在搜索相关论文...</p>
+                </div>
+            </div>
+
+            <!-- 以文搜图标签页 -->
+            <div class="tab-pane fade" id="search-image" role="tabpanel">
+                <h4><i class="fas fa-image text-success me-2"></i>以文搜图</h4>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="searchImageForm">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="imageQuery"
+                                       placeholder="输入图像描述，如：'一只在草地上玩耍的棕色小狗'" required>
+                                <select class="form-select" id="imageResultsCount" style="max-width: 120px;">
+                                    <option value="1">1条结果</option>
+                                    <option value="3">3条结果</option>
+                                    <option value="5">5条结果</option>
+                                </select>
+                                <button class="btn btn-success" type="submit">搜索</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="imageSearchResults"></div>
+                <div class="loading" id="imageLoading">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">搜索中...</span>
+                    </div>
+                    <p class="mt-2">正在搜索相关图像...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 图片预览模态框 -->
+    <div class="modal fade image-modal" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">图片预览</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <div class="mt-3">
+                        <p id="imageInfo" class="text-muted"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <a id="downloadImage" class="btn btn-primary" href="#" download>
+                        <i class="fas fa-download me-2"></i>下载图片
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 添加论文 - 单文件上传
+        document.getElementById('singleUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', document.getElementById('singleFile').files[0]);
+            formData.append('topics', document.getElementById('singleTopics').value);
+
+            uploadPaper(formData, 'single');
+        });
+
+        // 添加论文 - 批量上传
+        document.getElementById('batchUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const files = document.getElementById('batchFiles').files;
+            for (let file of files) {
+                formData.append('files', file);
+            }
+            formData.append('topics', document.getElementById('batchTopics').value);
+
+            uploadPaper(formData, 'batch');
+        });
+
+        // 搜索论文
+        document.getElementById('searchPaperForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchPaper();
+        });
+
+        // 搜索图像
+        document.getElementById('searchImageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchImage();
+        });
+
+        // 上传论文函数
+        function uploadPaper(formData, type) {
+            const endpoint = type === 'single' ? '/api/add_paper' : '/api/batch_add_papers';
+            const resultsDiv = document.getElementById('uploadResults');
+
+            resultsDiv.innerHTML = '<div class="alert alert-info">处理中...</div>';
+
+            fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '<div class="alert alert-success">' + data.message + '</div>';
+                    if (data.details) {
+                        html += '<div class="mt-3"><h6>处理详情：</h6>';
+                        data.details.forEach(detail => {
+                            html += `<div class="result-item">
+                                <strong>${detail.file}:</strong> ${detail.result}
+                            </div>`;
+                        });
+                        html += '</div>';
+                    }
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultsDiv.innerHTML = `<div class="alert alert-danger">上传失败: ${error}</div>`;
+            });
+        }
+
+        // 搜索论文函数
+        function searchPaper() {
+            const query = document.getElementById('paperQuery').value;
+            const nResults = document.getElementById('paperResultsCount').value;
+            const resultsDiv = document.getElementById('paperSearchResults');
+            const loadingDiv = document.getElementById('paperLoading');
+
+            if (!query.trim()) {
+                resultsDiv.innerHTML = '<div class="alert alert-warning">请输入搜索查询</div>';
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+
+            fetch('/api/search_paper', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, n_results: parseInt(nResults) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = 'none';
+
+                if (data.success) {
+                    if (data.results && data.results.length > 0) {
+                        let html = `<h5>找到 ${data.results.length} 条结果:</h5>`;
+                        data.results.forEach((result, index) => {
+                            html += `
+                            <div class="result-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h6>${index + 1}. ${result.file_name}</h6>
+                                    <span class="badge bg-primary similarity-badge">相似度: ${result.similarity}</span>
+                                </div>
+                                <p class="mb-1"><strong>路径:</strong> ${result.path}</p>
+                                <p class="mb-1">
+                                    <span class="badge topic-badge">${result.topic}</span>
+                                    <span class="badge page-badge">页码: ${result.page}</span>
+                                </p>
+                                <div class="mt-2">
+                                    <strong>匹配内容:</strong>
+                                    <div class="bg-light p-2 mt-1 rounded">${result.matched_chunk}</div>
+                                </div>
+                            </div>`;
+                        });
+                        resultsDiv.innerHTML = html;
+                    } else {
+                        resultsDiv.innerHTML = '<div class="alert alert-info">未找到相关论文</div>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="alert alert-danger">搜索失败: ${error}</div>`;
+            });
+        }
+
+        // 搜索图像函数 - 修正版本
+        function searchImage() {
+            const query = document.getElementById('imageQuery').value;
+            const nResults = document.getElementById('imageResultsCount').value;
+            const resultsDiv = document.getElementById('imageSearchResults');
+            const loadingDiv = document.getElementById('imageLoading');
+
+            if (!query.trim()) {
+                resultsDiv.innerHTML = '<div class="alert alert-warning">请输入图像描述</div>';
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+
+            fetch('/api/search_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, n_results: parseInt(nResults) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = 'none';
+
+                if (data.success) {
+                    if (data.results && data.results.length > 0) {
+                        displayImageResults(data.results);
+                    } else {
+                        resultsDiv.innerHTML = '<div class="alert alert-info">未找到相关图像</div>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                resultsDiv.innerHTML = `<div class="alert alert-danger">搜索失败: ${error}</div>`;
+            });
+        }
+
+        // 显示图片结果
+        function displayImageResults(results) {
+            const resultsDiv = document.getElementById('imageSearchResults');
+            let html = `<h5>找到 ${results.length} 张相关图像:</h5>`;
+            html += `<div class="image-grid">`;
+
+            results.forEach((result, index) => {
+                const imageUrl = `/api/get_image?path=${encodeURIComponent(result.path)}`;
+                const similarityPercent = (result.similarity * 100).toFixed(1);
+
+                html += `
+                <div class="image-result-item">
+                    <div class="image-preview-container" id="imageContainer-${index}">
+                        <div class="image-loading">
+                            <i class="fas fa-spinner fa-spin"></i> 加载中...
+                        </div>
+                    </div>
+                    <div class="image-details">
+                        <h6 class="mb-1">${index + 1}. ${result.file_name}</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">相似度: ${similarityPercent}%</span>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="showImageModal('${imageUrl}', '${result.file_name}', ${result.similarity})">
+                                <i class="fas fa-expand"></i> 查看大图
+                            </button>
+                        </div>
+                        <small class="text-muted d-block mt-1">${result.path}</small>
+                    </div>
+                </div>`;
+            });
+
+            html += `</div>`;
+            resultsDiv.innerHTML = html;
+
+            // 延迟加载图片
+            results.forEach((result, index) => {
+                setTimeout(() => {
+                    loadImagePreview(result.path, index);
+                }, index * 100); // 避免同时加载所有图片
+            });
+        }
+
+        // 加载图片预览
+        function loadImagePreview(imagePath, index) {
+            const container = document.getElementById(`imageContainer-${index}`);
+            const imageUrl = `/api/get_image?path=${encodeURIComponent(imagePath)}`;
+
+            // 首先检查图片是否存在
+            fetch(`/api/check_image_exists?path=${encodeURIComponent(imagePath)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        // 图片存在，创建img元素
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.alt = `搜索结果 ${index + 1}`;
+                        img.className = 'image-preview';
+                        img.onclick = () => showImageModal(imageUrl, imagePath.split('/').pop(), 0);
+                        img.onerror = () => {
+                            container.innerHTML = '<div class="image-placeholder"><i class="fas fa-image"></i><br><small>图片加载失败</small></div>';
+                        };
+                        img.onload = () => {
+                            container.innerHTML = '';
+                            container.appendChild(img);
+                        };
+                    } else {
+                        // 图片不存在，显示占位符
+                        container.innerHTML = '<div class="image-placeholder"><i class="fas fa-file-image"></i><br><small>图片不存在</small></div>';
+                    }
+                })
+                .catch(error => {
+                    container.innerHTML = '<div class="image-placeholder"><i class="fas fa-exclamation-triangle"></i><br><small>加载失败</small></div>';
+                });
+        }
+
+        // 显示图片模态框
+        function showImageModal(imageUrl, fileName, similarity) {
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            const modalImage = document.getElementById('modalImage');
+            const imageInfo = document.getElementById('imageInfo');
+            const downloadLink = document.getElementById('downloadImage');
+            const similarityPercent = (similarity * 100).toFixed(1);
+
+            // 设置模态框内容
+            modalImage.src = imageUrl;
+            modalImage.alt = fileName;
+            imageInfo.textContent = `文件名: ${fileName} | 相似度: ${similarityPercent}%`;
+            downloadLink.href = imageUrl;
+            downloadLink.download = fileName;
+
+            // 显示模态框
+            modal.show();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保模态框图片在关闭时重置
+            const imageModal = document.getElementById('imageModal');
+            imageModal.addEventListener('hidden.bs.modal', function() {
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = '';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -29,9 +29,6 @@ class ImageManager:
     def add_image(self, image_path: str) -> str:
         if not os.path.exists(image_path):
             return f"错误：{image_path} 不存在"
-        # 过滤非支持格式的文件
-        if not any(image_path.lower().endswith(ext) for ext in self.supported_ext):
-            return f"跳过：{image_path} 不是支持的图片格式"
         # 生成图像嵌入
         image_embedding = self.embedding_model.get_image_embedding(image_path)
         if not image_embedding:
@@ -46,21 +43,6 @@ class ImageManager:
             documents=[os.path.basename(image_path)]
         )
         return f"成功：{image_path} 已添加到图像库"
-
-    # 批量索引图片文件夹（新增：对应add_image命令的批量处理）
-    def batch_index_images(self, folder_path: str) -> str:
-        if not os.path.isdir(folder_path):
-            return f"错误：{folder_path} 不是有效的文件夹"
-
-        results = []
-        # 递归遍历文件夹下所有图片
-        for root, _, files in os.walk(folder_path):
-            for file_name in files:
-                file_path = os.path.join(root, file_name)
-                if any(file_name.lower().endswith(ext) for ext in self.supported_ext):
-                    result = self.add_image(file_path)
-                    results.append(f"{file_name}: {result}")
-        return "\n".join(results)
 
     # 以文搜图（返回最匹配的图像）
     def search_image(self, query: str, n_results: int = 5) -> list:

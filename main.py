@@ -4,10 +4,11 @@ import os
 from src.document_manager import DocumentManager
 from src.image_manager import ImageManager
 
+
 def main():
     # 创建命令行参数解析器
-    parser = argparse.ArgumentParser(description="本地多模态AI智能文献与图像管理助手")
-    subparsers = parser.add_subparsers(dest="command", help="可用命令：add_paper, search_paper, add_image, search_image")
+    parser = argparse.ArgumentParser(description="本地多模态AI智能文献与图像管理助手（Python 3.9）")
+    subparsers = parser.add_subparsers(dest="command", help="可用命令：add_paper, search_paper, search_image")
 
     # 1. 添加/分类论文命令
     add_paper_parser = subparsers.add_parser("add_paper", help="添加并分类论文（单文件/批量）")
@@ -19,11 +20,7 @@ def main():
     search_paper_parser.add_argument("query", help="搜索查询语句（自然语言）")
     search_paper_parser.add_argument("--n_results", type=int, default=5, help="返回结果数量（默认5）")
 
-    # 3. 添加/索引图片命令（新增：完善参数定义）
-    add_image_parser = subparsers.add_parser("add_image", help="添加并索引图片（单文件/批量）")
-    add_image_parser.add_argument("path", help="图片文件路径或文件夹路径")
-
-    # 4. 以文搜图命令
+    # 3. 以文搜图命令
     search_image_parser = subparsers.add_parser("search_image", help="以文搜图")
     search_image_parser.add_argument("query", help="图像描述语句（自然语言）")
     search_image_parser.add_argument("--n_results", type=int, default=5, help="返回结果数量（默认5）")
@@ -61,19 +58,7 @@ def main():
         else:
             print("\n未找到相关论文")
 
-    elif args.command == "add_image":
-        # 处理图片添加/索引
-        img_manager = ImageManager()
-        if os.path.isfile(args.path):
-            # 单张图片处理
-            result = img_manager.add_image(args.path)
-            print(result)
-        elif os.path.isdir(args.path):
-            # 批量处理图片文件夹
-            result = img_manager.batch_index_images(args.path)
-            print(result)
-        else:
-            print(f"错误：{args.path} 不是有效的文件或文件夹")
+
 
     elif args.command == "search_image":
         # 以文搜图
@@ -91,6 +76,7 @@ def main():
     else:
         # 显示帮助信息
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

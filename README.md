@@ -1,8 +1,8 @@
 # 本地 AI 智能文献与图像管理助手
-https://github.com/hetuntunNi/Multi-Modal-Agent-literature-and-image-management.git
+https://github.com/hetuntunNi/Multi-Modal-Agent-literature-and-image-management
 
 ## 项目简介
-本项目是基于Python 3.10开发的本地多模态AI智能助手，解决本地文献（PDF）和图像的管理难题。通过**语义搜索**和**自动分类**技术，替代传统的文件名搜索，支持：
+本项目是基于Python 3.10开发的本地多模态AI智能助手，解决本地文献（PDF）和图像的管理难题。通过语义搜索和自动分类技术，替代传统的文件名搜索，支持：
 - 论文的语义搜索、单文件/批量自动分类
 - 本地图像的以文搜图功能
 - 完全本地化部署（无数据上传），保护隐私
@@ -23,26 +23,39 @@ https://github.com/hetuntunNi/Multi-Modal-Agent-literature-and-image-management.
 ### 依赖安装
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/your-username/local-multimodal-ai-agent.git
-cd local-multimodal-ai-agent
+git clone https://github.com/hetuntunNi/Multi-Modal-Agent-literature-and-image-management.git
+cd Multi-Modal-Agent-literature-and-image-management
 
 # 2. 安装依赖
 pip install -r requirements.txt
+```
 
+## 运行示例
+```bash
 # 示例：将论文分类到CV、NLP、RL主题
 python main.py add_paper "docs/GeoRAG A Question-Answering Approach from a Geographical Perspective.pdf" --topics "CV,NLP,RL"
+```
 
+```bash
 # 示例：整理papers文件夹下的所有PDF
 python main.py add_paper "docs" --topics "CV,NLP,RL"
+```
 
-# 示例：搜索Transformer相关论文（返回5条结果）
-python main.py search_paper "Transformer的核心架构是什么？"
+```bash
+# 示例：搜索相关论文（返回5条结果）
+python main.py search_paper "GeoRAG的核心思想是什么？" --n_results 10
+```
 
-# 示例：指定返回10条结果
-python main.py search_paper "强化学习经典算法" --n_results 10
-
+```bash
 # 示例：搜索“海边的日落”相关图像
-python main.py search_image "海边的日落"
+python main.py search_image "海边的日落" --n_results 3
+```
 
-# 示例：指定返回3条结果
-python main.py search_image "猫在草地上玩耍" --n_results 3
+
+
+
+## 系统运行
+```bash
+python app.py
+```
+

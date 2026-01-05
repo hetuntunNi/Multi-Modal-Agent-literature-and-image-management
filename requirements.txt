@@ -18,3 +18,7 @@ chromadb==0.4.24
 
 # Windows/Linux 兼容依赖
 typing-extensions==4.8.0
+
+# 前端
+flask==3.1.2
+werkzeug==3.1.4
