@@ -72,7 +72,7 @@ python main.py add_paper "docs" --topics "CV,NLP,RL"
 ```
 ![](src/web/static/2.png)
 ```bash
-# 示例：搜索相关论文（返回5条结果）
+# 示例：搜索相关论文（返回3条结果）
 python main.py search_paper "GeoAI的发展" --n_results 3
 ```
 ![](src/web/static/6.png)
